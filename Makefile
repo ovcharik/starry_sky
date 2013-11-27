@@ -18,10 +18,10 @@ HEADERS=$(wildcard $(SRC)/*.h)
 
 APP_NAME=StarrySky
 
-all: opengl assets
+all: create_dirs assets opengl
 
 
-opengl: $(GLOBJECTS) $(HEADERS)
+opengl: create_dirs assets $(GLOBJECTS) $(HEADERS)
 	$(CC) $(GLOBJECTS) -o $(BIN)/$(APP_NAME)-gl $(LDFLAGS)
 
 win-opengl: $(WGLOBJECTS) $(HEADERS)
@@ -32,6 +32,10 @@ assets:
 
 clean:
 	rm -r $(OBJ)/*.o $(BIN)/*
+
+create_dirs:
+	mkdir -p $(BIN)
+	mkdir -p $(OBJ)
 
 # Rules for objects
 
