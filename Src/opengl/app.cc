@@ -1,6 +1,7 @@
 #include "app.h"
-#include "defines.h"
-#include "event_repository.h"
+
+#include "../general/defines.h"
+#include "../general/event_repository.h"
 
 #include <iostream>
 

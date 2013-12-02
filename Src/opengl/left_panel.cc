@@ -1,7 +1,7 @@
 #include "left_panel.h"
 
-#include "defines.h"
-#include "event_repository.h"
+#include "../general/defines.h"
+#include "../general/event_repository.h"
 
 #include <iostream>
 #include <functional>
@@ -26,7 +26,6 @@ LeftPanel::LeftPanel()
     
     m_fps("0", 0, 0)
 {
-  typedef Gtk::Adjustment* adj_ref;
   EventRepository& er = *EventRepository::get_instance();
   
   // defaults
@@ -39,28 +38,28 @@ LeftPanel::LeftPanel()
   m_scale_percent_small.set_digits(0);
   
   // connecting events
-  auto count_event = er.get_event<adj_ref>(EventTypes::LP_STAR_COUNT);
+  auto count_event = er.get_event<float>(EventTypes::LP_STAR_COUNT);
   this->m_adj_count_connection = m_adj_count.signal_value_changed()
-    .connect([&m_adj_count, count_event]()
+    .connect([this, count_event]()
   {
-    count_event->trigger(&m_adj_count);
+    count_event->trigger(this->m_adj_count.get_value());
   });
   
   
-  auto time_event = er.get_event<adj_ref>(EventTypes::LP_STAR_TIME_OF_LIVE);
+  auto time_event = er.get_event<float>(EventTypes::LP_STAR_TIME_OF_LIVE);
   this->m_adj_time_connection = m_adj_time.signal_value_changed()
-    .connect([&m_adj_time, time_event]()
+    .connect([this, time_event]()
   {
-    time_event->trigger(&m_adj_time);
+    time_event->trigger(this->m_adj_time.get_value());
   });
   
   
   
-  auto percent_big_event = er.get_event<adj_ref>(EventTypes::LP_PERCENT_BIG);
+  auto percent_big_event = er.get_event<float>(EventTypes::LP_PERCENT_BIG);
   this->m_adj_percent_big_connection = m_adj_percent_big.signal_value_changed()
     .connect([this, percent_big_event]()
   {
-    percent_big_event->trigger(&this->m_adj_percent_big);
+    percent_big_event->trigger(this->m_adj_percent_big.get_value());
     double b = this->m_adj_percent_big.get_value(),
       m = this->m_adj_percent_middle.get_value(),
       s = this->m_adj_percent_small.get_value(),
@@ -73,11 +72,11 @@ LeftPanel::LeftPanel()
       this->m_adj_percent_small.set_value((int)(s - a));
     }
   });
-  auto percent_middle_event = er.get_event<adj_ref>(EventTypes::LP_PERCENT_MIDDLE);
+  auto percent_middle_event = er.get_event<float>(EventTypes::LP_PERCENT_MIDDLE);
   this->m_adj_percent_middle_connection = m_adj_percent_middle.signal_value_changed()
     .connect([this, percent_middle_event]()
   {
-    percent_middle_event->trigger(&this->m_adj_percent_middle);
+    percent_middle_event->trigger(this->m_adj_percent_middle.get_value());
     double b = this->m_adj_percent_big.get_value(),
       m = this->m_adj_percent_middle.get_value(),
       s = this->m_adj_percent_small.get_value(),
@@ -90,11 +89,11 @@ LeftPanel::LeftPanel()
       this->m_adj_percent_small.set_value((int)(s - a));
     }
   });
-  auto percent_small_event = er.get_event<adj_ref>(EventTypes::LP_PERCENT_SMALL);
+  auto percent_small_event = er.get_event<float>(EventTypes::LP_PERCENT_SMALL);
   this->m_adj_percent_small_connection = m_adj_percent_small.signal_value_changed()
     .connect([this, percent_small_event]()
   {
-    percent_small_event->trigger(&this->m_adj_percent_small);
+    percent_small_event->trigger(this->m_adj_percent_small.get_value());
     double b = this->m_adj_percent_big.get_value(),
       m = this->m_adj_percent_middle.get_value(),
       s = this->m_adj_percent_small.get_value(),

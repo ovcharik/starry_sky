@@ -10,9 +10,9 @@
 
 #include <ctime>
 
-#include "defines.h"
-#include "stars_storage.h"
-#include "cloud.h"
+#include "../general/defines.h"
+#include "../general/stars_storage.h"
+#include "../general/cloud.h"
 
 class SkyScene : public Gtk::DrawingArea,
                  public Gtk::GL::Widget<SkyScene>

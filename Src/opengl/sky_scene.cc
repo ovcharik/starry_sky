@@ -2,7 +2,8 @@
 #include <cstdlib>
 
 #include "sky_scene.h"
-#include "event_repository.h"
+
+#include "../general/event_repository.h"
 
 SkyScene::SkyScene()
   : m_view_rot_x(DEFAULT_ROT_X),
@@ -62,8 +63,8 @@ SkyScene::SkyScene()
       this->invalidate();
     });
   
-  EventRepository::get_event<Gtk::Adjustment*>(EventTypes::LP_STAR_COUNT)
-    ->add_handler([this](Gtk::Adjustment* obj){
+  EventRepository::get_event<float>(EventTypes::LP_STAR_COUNT)
+    ->add_handler([this](float value){
       this->invalidate();
     });
 }

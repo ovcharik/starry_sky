@@ -1,12 +1,10 @@
 #pragma once
 
-#include <glibmm.h>
-
 #include <map>
 
-#ifdef DEBUG
+//#ifdef DEBUG
 #include <iostream>
-#endif
+//#endif
 
 #include "event.h"
 

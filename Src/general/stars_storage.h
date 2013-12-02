@@ -1,7 +1,6 @@
 #pragma once
 
 #include <list>
-#include <mutex>
 
 #include "star.h"
 
@@ -14,7 +13,6 @@ public:
 protected:
   std::list<Star> m_stars;
   std::list<Star> m_stars_tmp;
-  std::mutex m_stars_mutex;
 
 public:
   const std::list<Star>& get_stars();
