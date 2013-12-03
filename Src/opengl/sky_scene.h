@@ -48,11 +48,6 @@ protected:
   
   StarsStorage m_stars_storage;
   Cloud m_cloud;
-  
-protected:
-  void get_frustum(float* proj, float* modl, float frustum[6][4]);
-  bool point_in_frustum(float x, float y, float z, float frustum[6][4]);
-  bool rect_in_frustum(float rect[4][3], float frustum[6][4]);
 
 protected:
   

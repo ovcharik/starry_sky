@@ -46,8 +46,6 @@ App::App(HINSTANCE h_inst, HINSTANCE h_prev_inst, LPSTR lp_cmd_line, int cmd_sho
 
 App::~App()
 {
-  delete m_left_panel;
-  delete m_sky_scene;
 }
 
 int App::run()
@@ -64,7 +62,12 @@ int App::run()
     }
     if(msg.message == WM_QUIT)
       break;
+    m_sky_scene->render();
   }
+  
+  delete m_left_panel;
+  delete m_sky_scene;
+  
   return msg.wParam;
 }
 

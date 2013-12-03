@@ -26,13 +26,22 @@ protected:
   HINSTANCE m_h_inst;
   HWND m_h_parent_wnd;
   
+  LPDIRECT3D9 m_d3d_interface;
+  LPDIRECT3DDEVICE9 m_d3d_device;
+  LPDIRECT3DVERTEXBUFFER9 m_v_buffer;
+  LPDIRECT3DINDEXBUFFER9 m_i_buffer;
+  
+  bool m_inited;
+  
+  struct CUSTOMVERTEX {FLOAT X, Y, Z; DWORD COLOR;};
+  #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE)
+  
 protected:
   void on_create();
   void on_resize();
-  void on_redraw();
   
-protected:
-  void invalidate();
+public:
+  void render();
   
 protected:
   float m_view_rot_x;
