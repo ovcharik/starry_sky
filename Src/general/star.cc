@@ -66,7 +66,7 @@ float Star::get_angle()
 
 float Star::get_size(float b, float m, float s)
 {
-  return (m_size == Size::big) ? b : (m_size == Size::middle) ? m : s;
+  return (m_size == Size::BIG) ? b : (m_size == Size::MIDDLE) ? m : s;
 }
 
 #include <iostream>

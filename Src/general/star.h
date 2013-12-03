@@ -11,9 +11,9 @@ class Star : public Billboard
 public:
   enum Size
   {
-    small,
-    middle,
-    big
+    SMALL,
+    MIDDLE,
+    BIG
   };
   
 protected:

@@ -17,7 +17,7 @@ GL_OBJECTS=$(GL_SOURCES:$(SRC)%.cc=$(OBJ)%-gl.o)
 DX_SOURCES=$(GENERAL_SOURCES) $(wildcard $(SRC)/directx/*.cc)
 DX_OBJECTS=$(DX_SOURCES:$(SRC)%.cc=$(OBJ)%-dx.o)
 
-all: create_dirs assets opengl
+all: create_dirs assets opengl directx
 
 create_dirs:
 	mkdir -p $(BIN)
@@ -36,7 +36,7 @@ opengl: create_dirs assets $(GL_OBJECTS)
 		`pkg-config glibmm-2.4 gtkglextmm-1.2 gtkmm-2.4 gdkmm-2.4 --libs` -lSDL
 
 directx: create_dirs assets $(DX_OBJECTS)
-	wineg++ $(DX_OBJECTS) -o $(BIN)/$(APP_NAME)-dx $(LDFLAGS) -ld3d9 -ld3dx9
+	wineg++ $(DX_OBJECTS) -o $(BIN)/$(APP_NAME)-dx $(LDFLAGS) -ld3d9 -ld3dx9 -lcomctl32 -lgdi32
 
 
 # Rules for objects

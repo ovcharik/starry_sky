@@ -125,11 +125,11 @@ const Star& StarsStorage::new_star()
   Star::Size s;
   int v = rand() % 100;
   if (v < m_big_percent)
-    s = Star::Size::big;
+    s = Star::Size::BIG;
   else if(v < m_big_percent + m_middle_percent)
-    s = Star::Size::middle;
+    s = Star::Size::MIDDLE;
   else
-    s = Star::Size::small;
+    s = Star::Size::SMALL;
   
   clock_t t = clock() + rand() % (int)(m_star_time_of_live * CLOCKS_PER_SEC);
   float a_v = ANGLE_V_MIN + (rand() % (int)((ANGLE_V_MAX - ANGLE_V_MIN) * 100)) / 100.0;
