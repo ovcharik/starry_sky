@@ -28,19 +28,20 @@ protected:
   
   LPDIRECT3D9 m_d3d_interface;
   LPDIRECT3DDEVICE9 m_d3d_device;
-  LPDIRECT3DVERTEXBUFFER9 m_v_buffer;
-  LPDIRECT3DINDEXBUFFER9 m_i_buffer;
+  LPDIRECT3DTEXTURE9 m_textures[2];
   
-  bool m_inited;
+  static const DWORD POSITION_COLOR_FVF = D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_DIFFUSE;
+  struct POSITION_COLOR_VERTEX
+  {
+    FLOAT X, Y, Z;
+    DWORD COLOR;
+    FLOAT U, V;
+  };
   
-  struct CUSTOMVERTEX {FLOAT X, Y, Z; DWORD COLOR;};
-  #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE)
-  
-protected:
-  void on_create();
-  void on_resize();
+  bool m_d3d_inited;
   
 public:
+  void init();
   void render();
   
 protected:

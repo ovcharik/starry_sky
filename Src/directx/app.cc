@@ -51,6 +51,7 @@ App::~App()
 int App::run()
 {
   ShowWindow(m_h_wnd, m_cmd_show);
+  m_sky_scene->init();
   
   MSG msg;
   while(true)

@@ -21,7 +21,7 @@ SkyScene::SkyScene(HINSTANCE h_inst, HWND h_parent_wnd)
     m_clocks(GetTickCount()),
     m_prev_clocks(GetTickCount()),
     
-    m_inited(false)
+    m_d3d_inited(false)
 {
   WNDCLASSEX sky_scene_wndclassex = {
     sizeof(WNDCLASSEX),
@@ -56,22 +56,22 @@ SkyScene::SkyScene(HINSTANCE h_inst, HWND h_parent_wnd)
   // Attach events
   EventRepository::get_event<int>(EventTypes::WN_KEY_UP)
     ->add_handler([this](int key){
-      this->m_view_rot_x -= DELTA_ROT;
+      this->m_view_rot_x -= DELTA_ROT / 5;
       this->render();
     });
   EventRepository::get_event<int>(EventTypes::WN_KEY_DOWN)
     ->add_handler([this](int key){
-      this->m_view_rot_x += DELTA_ROT;
+      this->m_view_rot_x += DELTA_ROT / 5;
       this->render();
     });
   EventRepository::get_event<int>(EventTypes::WN_KEY_LEFT)
     ->add_handler([this](int key){
-      this->m_view_rot_y -= DELTA_ROT;
+      this->m_view_rot_y -= DELTA_ROT / 5;
       this->render();
     });
   EventRepository::get_event<int>(EventTypes::WN_KEY_RIGHT)
     ->add_handler([this](int key){
-      this->m_view_rot_y += DELTA_ROT;
+      this->m_view_rot_y += DELTA_ROT / 5;
       this->render();
     });
   
@@ -94,10 +94,10 @@ SkyScene::SkyScene(HINSTANCE h_inst, HWND h_parent_wnd)
 
 SkyScene::~SkyScene()
 {
-  if (m_inited)
+  if (m_d3d_inited)
   {
-    m_v_buffer->Release();
-    m_i_buffer->Release();
+    m_textures[0]->Release();
+    m_textures[1]->Release();
     m_d3d_device->Release();
     m_d3d_interface->Release();
   }
@@ -107,18 +107,11 @@ LRESULT SkyScene::wnd_proc(HWND h_wnd, UINT msg, WPARAM w_param, LPARAM l_param)
 {
   switch (msg)
   {
-  case WM_CREATE:
-    break;
-  case WM_SIZE:
-    on_create();
-    on_resize();
-    break;
   }
   return DefWindowProc(h_wnd, msg, w_param, l_param);
 }
 
-
-void SkyScene::on_create()
+void SkyScene::init()
 {
   m_d3d_interface = Direct3DCreate9(D3D_SDK_VERSION);
   
@@ -142,68 +135,44 @@ void SkyScene::on_create()
     &d3dpp,
     &m_d3d_device);
   
-  CUSTOMVERTEX vertices[] =
-  {
-    { -3.0f, 0.0f,  3.0f, D3DCOLOR_XRGB(0, 255, 0  ), },
-    {  3.0f, 0.0f,  3.0f, D3DCOLOR_XRGB(0,   0, 255), },
-    { -3.0f, 0.0f, -3.0f, D3DCOLOR_XRGB(255, 0, 0  ), },
-    {  3.0f, 0.0f, -3.0f, D3DCOLOR_XRGB(0, 255, 255), },
-    
-    {  0.0f, 7.0f,  0.0f, D3DCOLOR_XRGB(0, 255, 0  ), },
-  };
+  D3DXCreateTextureFromFile(
+    m_d3d_device,
+    "Data/Star.bmp",
+    &(m_textures[0])
+  );
   
-  m_d3d_device->CreateVertexBuffer(
-    5 * sizeof(CUSTOMVERTEX),
-    0,
-    CUSTOMFVF,
-    D3DPOOL_MANAGED,
-    &m_v_buffer,
-    NULL);
+  D3DXCreateTextureFromFile(
+    m_d3d_device,
+    "Data/Cloud.bmp",
+    &(m_textures[1])
+  );
   
-  VOID* pVoid;
-  m_v_buffer->Lock(0, 0, (void**)&pVoid, 0);
-  memcpy(pVoid, vertices, sizeof(vertices));
-  m_v_buffer->Unlock();
+  // Set states
+  m_d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+  m_d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
   
-  short indices[] =
-  {
-    0, 2, 1,    // base
-    1, 2, 3,
-    0, 1, 4,    // sides
-    1, 3, 4,
-    3, 2, 4,
-    2, 0, 4,
-  };
-
-  m_d3d_device->CreateIndexBuffer(
-    18 * sizeof(short),
-    0,
-    D3DFMT_INDEX16,
-    D3DPOOL_MANAGED,
-    &m_i_buffer,
-    NULL);
-  
-  m_i_buffer->Lock(0, 0, (void**)&pVoid, 0);
-  memcpy(pVoid, indices, sizeof(indices));
-  m_i_buffer->Unlock();
+  m_d3d_device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+  m_d3d_device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+  m_d3d_device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
   
   m_d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
-  m_d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-  m_d3d_device->SetRenderState(D3DRS_ZENABLE, TRUE);
+  m_d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+  m_d3d_device->SetRenderState(D3DRS_ZENABLE, FALSE);
   
-  m_inited = true;
-}
-
-void SkyScene::on_resize()
-{
-  std::cout << "Sky scene resized" << std::endl;
+  m_d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+  m_d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+  m_d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+  m_d3d_device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+  
+  
+  m_d3d_inited = true;
 }
 
 void SkyScene::render()
 {
   // Render scene
   
-  if (!m_inited)
+  if (!m_d3d_inited)
     return;
   
   m_d3d_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
@@ -211,43 +180,172 @@ void SkyScene::render()
   
   m_d3d_device->BeginScene();
   
-  m_d3d_device->SetFVF(CUSTOMFVF);
+  // Set cam
+  m_d3d_device->SetFVF(POSITION_COLOR_FVF);
   
-  D3DXMATRIX matRotateWorld, matRotateX, matRotateY, matRotateZ;
-  D3DXMatrixRotationX(&matRotateX, m_view_rot_x);
-  D3DXMatrixRotationY(&matRotateY, m_view_rot_y);
-  D3DXMatrixRotationZ(&matRotateZ, m_view_rot_z);
-  D3DXMatrixMultiply(&matRotateWorld, &matRotateX, &matRotateY);
-  D3DXMatrixMultiply(&matRotateWorld, &matRotateWorld, &matRotateZ);
-  m_d3d_device->SetTransform(D3DTS_WORLD, &matRotateWorld);
+  D3DXMATRIX mat_view, mat_x, mat_y, mat_z, mat_rot, mat_trans;
+  D3DXMatrixRotationX(&mat_x, m_view_rot_x);
+  D3DXMatrixRotationY(&mat_y, m_view_rot_y);
+  D3DXMatrixRotationZ(&mat_z, m_view_rot_z);
+  mat_rot = mat_x * mat_y * mat_z;
   
-  D3DXMATRIX matView;
-  D3DXVECTOR3 cam(0.0f, 0.0f, m_view_pos_z);
-  D3DXVECTOR3 look(0.0f, 0.0f, 0.0f);
-  D3DXVECTOR3 up(0.0f, 1.0f, 0.0f);
-  D3DXMatrixLookAtLH(
-    &matView,
-    &cam,
-    &look,
-    &up);
-  m_d3d_device->SetTransform(D3DTS_VIEW, &matView);
+  D3DXMatrixTranslation(&mat_trans, 0.0f, 0.0f, m_view_pos_z);
+  mat_view = mat_rot * mat_trans;
   
-  D3DXMATRIX matProjection;
+  m_d3d_device->SetTransform(D3DTS_VIEW, &mat_view);
+  
+  D3DXMATRIX mat_projection;
   D3DXMatrixPerspectiveFovLH(
-    &matProjection,
-    D3DXToRadian(45),
+    &mat_projection,
+    D3DX_PI / 4,
     (float)get_width() / (float)get_height(),
-    1.0f,
-    100.0f);
-  m_d3d_device->SetTransform(D3DTS_PROJECTION, &matProjection);
+    5.0f,
+    4000.0f);
+  m_d3d_device->SetTransform(D3DTS_PROJECTION, &mat_projection);
   
+  float* modl_view = static_cast<FLOAT*>(mat_view);
+  float* proj_view = static_cast<FLOAT*>(mat_projection);
   
-  m_d3d_device->SetStreamSource(0, m_v_buffer, 0, sizeof(CUSTOMVERTEX));
-  m_d3d_device->SetIndices(m_i_buffer);
+  float frustum[6][4];
+  Frustum::get_frustum(proj_view, modl_view, frustum);
   
-  m_d3d_device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 5, 0, 6);
+  float billboard[4][3];
+  float roted_billboard[4][3];
   
+  // Create vertex buffer
+  LPDIRECT3DVERTEXBUFFER9 v_buffer;
   
+  std::vector<POSITION_COLOR_VERTEX> vertices;
+  
+  static const float tex_coords[4][2] = {
+    {1, 1},
+    {0, 1},
+    {1, 0},
+    {0, 0}
+  };
+  
+  // Stars
+  auto stars = m_stars_storage.get_stars();
+  for (auto star : stars)
+  {
+    Position p = star.get_position();
+    if (!Frustum::point_in_frustum(p.x, p.y, p.z, frustum))
+      continue;
+    
+    Color c = star.get_color();
+    float d = star.get_size(3.0f, 2.0f, 1.0f);
+    star.get_billboard(modl_view, d, billboard);
+    star.get_roted_billboard(billboard, roted_billboard);
+    
+    for (int i = 0; i < 4; i++)
+    {
+      POSITION_COLOR_VERTEX vertex = {
+        billboard[i][0],
+        billboard[i][1],
+        billboard[i][2],
+        D3DCOLOR_COLORVALUE(c.red, c.green, c.blue, c.alpha),
+        tex_coords[i][0],
+        tex_coords[i][1]
+      };
+      vertices.push_back(vertex);
+    }
+    for (int i = 0; i < 4; i++)
+    {
+      POSITION_COLOR_VERTEX vertex = {
+        roted_billboard[i][0],
+        roted_billboard[i][1],
+        roted_billboard[i][2],
+        D3DCOLOR_COLORVALUE(1.0, 1.0, 1.0, c.alpha),
+        tex_coords[i][0],
+        tex_coords[i][1]
+      };
+      vertices.push_back(vertex);
+    }
+    
+  }
+  
+  // Render
+  int s = vertices.size() * sizeof(POSITION_COLOR_VERTEX);
+  
+  if (s > 0)
+  {
+    m_d3d_device->CreateVertexBuffer(
+      s,
+      0,
+      POSITION_COLOR_FVF,
+      D3DPOOL_MANAGED,
+      &v_buffer,
+      NULL);
+    
+    VOID* pVoid;
+    v_buffer->Lock(0, 0, (void**)&pVoid, 0);
+    memcpy(pVoid, vertices.data(), s);
+    v_buffer->Unlock();
+    
+    m_d3d_device->SetTexture(0, m_textures[0]);
+    m_d3d_device->SetStreamSource(0, v_buffer, 0, sizeof(POSITION_COLOR_VERTEX));
+    for (int i = 0; i < vertices.size(); i += 4) {
+      m_d3d_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, i, 2);
+    }
+    
+    v_buffer->Release();
+  }
+  
+  vertices.clear();
+  
+  // Clouds
+  float tex_points[4][2];
+  auto particals = m_cloud.get_particles();
+  for (auto part : particals)
+  {
+    part.get_billboard(modl_view, billboard);
+    if (!Frustum::rect_in_frustum(billboard, frustum))
+      continue;
+    
+    part.get_texture(4, 4, tex_points);
+    
+    for (int i = 0; i < 4; i++)
+    {
+      POSITION_COLOR_VERTEX vertex = {
+        billboard[i][0],
+        billboard[i][1],
+        billboard[i][2],
+        D3DCOLOR_COLORVALUE(1.0, 0.7, 1.0, 0.1),
+        tex_points[i][0],
+        tex_points[i][1]
+      };
+      vertices.push_back(vertex);
+    }
+  }
+  
+  // Render
+  s = vertices.size() * sizeof(POSITION_COLOR_VERTEX);
+  
+  if (s > 0)
+  {
+    m_d3d_device->CreateVertexBuffer(
+      s,
+      1,
+      POSITION_COLOR_FVF,
+      D3DPOOL_MANAGED,
+      &v_buffer,
+      NULL);
+    
+    VOID* pVoid;
+    v_buffer->Lock(0, 0, (void**)&pVoid, 0);
+    memcpy(pVoid, vertices.data(), s);
+    v_buffer->Unlock();
+    
+    m_d3d_device->SetTexture(0, m_textures[1]);
+    m_d3d_device->SetStreamSource(0, v_buffer, 0, sizeof(POSITION_COLOR_VERTEX));
+    for (int i = 0; i < vertices.size(); i += 4) {
+      m_d3d_device->DrawPrimitive(D3DPT_TRIANGLESTRIP, i, 2);
+    }
+    
+    v_buffer->Release();
+  }
+  
+  // End render
   m_d3d_device->EndScene();
   m_d3d_device->Present(NULL, NULL, NULL, NULL);
   

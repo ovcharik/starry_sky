@@ -27,5 +27,9 @@ Label::~Label()
 
 void Label::set_value(const char* value)
 {
+  UpdateWindow(m_h_wnd);
+  LPRECT rect = NULL;
+  GetWindowRect(m_h_wnd, rect);
+  InvalidateRect(m_h_parent_wnd, rect, TRUE);
   SetWindowText(m_h_wnd, value);
 }

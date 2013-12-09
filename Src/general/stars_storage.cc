@@ -7,6 +7,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#include <iostream>
+
 StarsStorage::StarsStorage()
   : m_star_count(DEFAULT_STAR_COUNT),
     m_star_time_of_live(DEFAULT_STAR_TIME_OF_LIFE),
@@ -28,8 +30,8 @@ StarsStorage::StarsStorage()
       this->m_star_time_of_live = value;
     });
   
-  EventRepository::get_event<int>(EventTypes::SS_TIMER)
-    ->add_handler([this](int value){
+  EventRepository::get_event<float>(EventTypes::SS_TIMER)
+    ->add_handler([this](float value){
       this->remove_oldest();
     });
   

@@ -29,4 +29,10 @@ protected:
   
   Label**   m_labels;
   Label*    m_fps_label;
+  
+  Label*    m_count_label;
+  Label*    m_time_label;
+  Label*    m_big_label;
+  Label*    m_middle_label;
+  Label*    m_small_label;
 };

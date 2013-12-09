@@ -51,7 +51,22 @@ LeftPanel::LeftPanel(HINSTANCE h_inst, HWND h_wnd)
   m_labels[4] = new Label(m_h_inst, m_h_wnd, "Small (%)");
   m_labels[5] = new Label(m_h_inst, m_h_wnd, "FPS:");
   
+  char str[20];
+  
   m_fps_label = new Label(m_h_inst, m_h_wnd, "0");
+  
+  sprintf(str, "%.0lf", (double)DEFAULT_STAR_COUNT);
+  m_count_label = new Label(m_h_inst, m_h_wnd, str);
+  
+  sprintf(str, "%.0lf", DEFAULT_STAR_TIME_OF_LIFE);
+  m_time_label = new Label(m_h_inst, m_h_wnd, str);
+  
+  sprintf(str, "%.0lf", DEFAULT_STAR_BIG);
+  m_big_label = new Label(m_h_inst, m_h_wnd, str);
+  sprintf(str, "%.0lf", DEFAULT_STAR_MIDDLE);
+  m_middle_label = new Label(m_h_inst, m_h_wnd, str);
+  sprintf(str, "%.0lf", DEFAULT_STAR_SMALL);
+  m_small_label = new Label(m_h_inst, m_h_wnd, str);
   
   // Trackbars
   m_count          = new Trackbar(m_h_inst, m_h_wnd, Trackbar::Types::COUNT,  0, 10000, DEFAULT_STAR_COUNT);
@@ -61,21 +76,26 @@ LeftPanel::LeftPanel(HINSTANCE h_inst, HWND h_wnd)
   m_percent_small  = new Trackbar(m_h_inst, m_h_wnd, Trackbar::Types::SMALL,  0, 100,   DEFAULT_STAR_SMALL);
   
   // Positions
-  m_labels[0]->set_adjust(5, 5, 190, 20);
+  m_labels[0]->set_adjust(5, 5, 140, 20);
+  m_count_label->set_adjust(140, 5, 190, 20);
   m_count->set_adjust(5, 25, 190, 30);
   
   
-  m_labels[1]->set_adjust(5, 65, 190, 20);
+  m_labels[1]->set_adjust(5, 65, 140, 20);
+  m_time_label->set_adjust(140, 65, 190, 20);
   m_time->set_adjust(5, 85, 190, 30);
   
   
-  m_labels[2]->set_adjust(5, 125, 190, 20);
+  m_labels[2]->set_adjust(5, 125, 140, 20);
+  m_big_label->set_adjust(140, 125, 190, 20);
   m_percent_big->set_adjust(5, 145, 190, 30);
   
-  m_labels[3]->set_adjust(5, 175, 190, 20);
+  m_labels[3]->set_adjust(5, 175, 140, 20);
+  m_middle_label->set_adjust(140, 175, 190, 20);
   m_percent_middle->set_adjust(5, 195, 190, 30);
   
-  m_labels[4]->set_adjust(5, 225, 190, 20);
+  m_labels[4]->set_adjust(5, 225, 140, 20);
+  m_small_label->set_adjust(140, 225, 190, 20);
   m_percent_small->set_adjust(5, 245, 190, 30);
   
   
@@ -88,6 +108,39 @@ LeftPanel::LeftPanel(HINSTANCE h_inst, HWND h_wnd)
       char str[20];
       sprintf(str, "%.0lf", value);
       this->m_fps_label->set_value(str);
+    });
+  
+  EventRepository::get_event<float>(EventTypes::LP_STAR_COUNT)
+    ->add_handler([this](float value) {
+      char str[20];
+      sprintf(str, "%.0lf", value);
+      this->m_count_label->set_value(str);
+    });
+  
+  EventRepository::get_event<float>(EventTypes::LP_STAR_TIME_OF_LIVE)
+    ->add_handler([this](float value) {
+      char str[20];
+      sprintf(str, "%.0lf", value);
+      this->m_time_label->set_value(str);
+    });
+  
+  EventRepository::get_event<float>(EventTypes::LP_PERCENT_BIG)
+    ->add_handler([this](float value) {
+      char str[20];
+      sprintf(str, "%.0lf", value);
+      this->m_big_label->set_value(str);
+    });
+  EventRepository::get_event<float>(EventTypes::LP_PERCENT_MIDDLE)
+    ->add_handler([this](float value) {
+      char str[20];
+      sprintf(str, "%.0lf", value);
+      this->m_middle_label->set_value(str);
+    });
+  EventRepository::get_event<float>(EventTypes::LP_PERCENT_SMALL)
+    ->add_handler([this](float value) {
+      char str[20];
+      sprintf(str, "%.0lf", value);
+      this->m_small_label->set_value(str);
     });
 }
 
@@ -104,6 +157,11 @@ LeftPanel::~LeftPanel()
   delete[] m_labels;
   
   delete m_fps_label;
+  delete m_count_label;
+  delete m_time_label;
+  delete m_big_label;
+  delete m_middle_label;
+  delete m_small_label;
 }
 
 LRESULT LeftPanel::wnd_proc(HWND h_wnd, UINT msg, WPARAM w_param, LPARAM l_param)
@@ -126,11 +184,11 @@ LRESULT LeftPanel::wnd_proc(HWND h_wnd, UINT msg, WPARAM w_param, LPARAM l_param
           switch (type)
           {
           case Trackbar::Types::COUNT:
-            EventRepository::get_event<int>(EventTypes::LP_STAR_COUNT)->trigger(value);
+            EventRepository::get_event<float>(EventTypes::LP_STAR_COUNT)->trigger(value);
             break;
           
           case Trackbar::Types::TIME:
-            EventRepository::get_event<int>(EventTypes::LP_STAR_TIME_OF_LIVE)->trigger(value);
+            EventRepository::get_event<float>(EventTypes::LP_STAR_TIME_OF_LIVE)->trigger(value);
             break;
           
           case Trackbar::Types::BIG:
@@ -179,9 +237,9 @@ LRESULT LeftPanel::wnd_proc(HWND h_wnd, UINT msg, WPARAM w_param, LPARAM l_param
                 m_percent_middle->set_value(m);
                 m_percent_small->set_value(s);
                 
-                EventRepository::get_event<int>(EventTypes::LP_PERCENT_BIG)->trigger(b);
-                EventRepository::get_event<int>(EventTypes::LP_PERCENT_MIDDLE)->trigger(m);
-                EventRepository::get_event<int>(EventTypes::LP_PERCENT_SMALL)->trigger(s);
+                EventRepository::get_event<float>(EventTypes::LP_PERCENT_BIG)->trigger(b);
+                EventRepository::get_event<float>(EventTypes::LP_PERCENT_MIDDLE)->trigger(m);
+                EventRepository::get_event<float>(EventTypes::LP_PERCENT_SMALL)->trigger(s);
               }
             }
             break;
