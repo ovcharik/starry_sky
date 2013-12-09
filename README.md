@@ -19,3 +19,9 @@ Course work
 	$ make
 
 В папке `./Bin` появятся следующие файлы `StarrySky-gl` и `StarrySky-dx`
+
+## Результат
+
+### OpenGl
+
+![OpenGL Version](https://dl.dropboxusercontent.com/s/9mnuz436bnyb13q/StarrySky-gl.png?dl=1&token_hash=AAHFpwveiPmhau_HtCfm8Ionhn7Pgs51wpbcVsQ-uL97Lg)
