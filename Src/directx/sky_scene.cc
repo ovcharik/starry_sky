@@ -13,7 +13,7 @@ SkyScene::SkyScene(HINSTANCE h_inst, HWND h_parent_wnd)
     m_view_rot_y(DEFAULT_ROT_Y),
     m_view_rot_z(DEFAULT_ROT_Z),
     
-    m_view_pos_z(10.0f),
+    m_view_pos_z(400.0f),
     
     m_cloud(Position(0, 0, 350), 200, 100, 100, 100),
     

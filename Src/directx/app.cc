@@ -11,15 +11,17 @@ App::App(HINSTANCE h_inst, HINSTANCE h_prev_inst, LPSTR lp_cmd_line, int cmd_sho
 {
   ZeroMemory(&m_wndclass, sizeof(WNDCLASSEX));
   
+  HICON h_icon = (HICON)LoadImage(NULL, "Data/Star.bmp", IMAGE_BITMAP, LR_DEFAULTSIZE, LR_DEFAULTSIZE, LR_LOADFROMFILE);
+  
   m_wndclass.cbSize        = sizeof(WNDCLASSEX);
   m_wndclass.style         = CS_HREDRAW | CS_VREDRAW;
   m_wndclass.lpfnWndProc   = (WNDPROC)IWindow::def_wnd_proc;
   m_wndclass.hInstance     = m_h_inst;
-  //m_wndclass.hIcon
+  m_wndclass.hIcon         = h_icon;
   m_wndclass.hCursor       = LoadCursor(NULL, IDC_ARROW);
   m_wndclass.hbrBackground = (HBRUSH)COLOR_WINDOW;
   m_wndclass.lpszClassName = "WindowClass";
-  //m_wndclass.hIconSm
+  m_wndclass.hIconSm       = NULL;
   
   RegisterClassEx(&m_wndclass);
   

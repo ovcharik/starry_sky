@@ -10,6 +10,7 @@ App::App()
     m_left_panel(),
     m_sky_scene()
 {
+  set_icon_from_file("Data/Star.bmp");
   set_title(APP_NAME);
   set_default_size(820, 510);
   set_reallocate_redraws(true);
