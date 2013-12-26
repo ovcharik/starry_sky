@@ -57,6 +57,9 @@ bool App::on_key_press_event(GdkEventKey* event)
     EventRepository::get_event<GdkEventKey*>(EventTypes::WN_KEY_PAGE_DOWN)
       ->trigger(event);
     break;
+  case GDK_space:
+    EventRepository::get_event<GdkEventKey*>(EventTypes::WN_KEY_SPACE)
+      ->trigger(event);
   }
   return true;
 }

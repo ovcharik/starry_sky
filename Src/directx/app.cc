@@ -7,7 +7,8 @@
 
 App::App(HINSTANCE h_inst, HINSTANCE h_prev_inst, LPSTR lp_cmd_line, int cmd_show)
   : m_h_inst(h_inst),
-    m_cmd_show(cmd_show)
+    m_cmd_show(cmd_show),
+    m_paused(false)
 {
   ZeroMemory(&m_wndclass, sizeof(WNDCLASSEX));
   
@@ -65,7 +66,10 @@ int App::run()
     }
     if(msg.message == WM_QUIT)
       break;
-    m_sky_scene->render();
+    if(!m_paused)
+      m_sky_scene->render();
+    else
+      Sleep(30);
   }
   
   delete m_left_panel;
@@ -105,6 +109,9 @@ LRESULT App::wnd_proc(HWND h_wnd, UINT msg, WPARAM w_param, LPARAM l_param)
       break;
     case VK_NEXT:
       EventRepository::get_event<int>(EventTypes::WN_KEY_PAGE_DOWN)->trigger(0);
+      break;
+    case VK_SPACE:
+      m_paused = !m_paused;
       break;
     }
     return 0;

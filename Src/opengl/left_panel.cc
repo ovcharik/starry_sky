@@ -110,6 +110,7 @@ LeftPanel::LeftPanel()
   
   er.get_event<double>(EventTypes::SS_FPS_CHANGED)->add_handler(
     [this](double fps){
+      //std::cout << fps << std::endl;
       char str[20];
       sprintf(str, "%.0lf", fps);
       this->m_fps.set_text(str);

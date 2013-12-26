@@ -55,5 +55,6 @@ protected:
   
   unsigned long m_clocks;
   unsigned long m_prev_clocks;
-  unsigned long m_pause;
+  
+  bool m_paused;
 };

@@ -25,6 +25,7 @@ public:
     WN_KEY_DOWN,
     WN_KEY_PAGE_UP,
     WN_KEY_PAGE_DOWN,
+    WN_KEY_SPACE,
     
     SS_FPS_CHANGED,
     SS_TIMER

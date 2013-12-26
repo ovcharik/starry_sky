@@ -25,4 +25,6 @@ public:
 protected:
   LeftPanel* m_left_panel;
   SkyScene*  m_sky_scene;
+  
+  bool m_paused;
 };

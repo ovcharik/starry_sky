@@ -17,8 +17,7 @@ SkyScene::SkyScene()
     
     m_frames(0),
     m_clocks(SDL_GetTicks()),
-    m_prev_clocks(SDL_GetTicks()),
-    m_pause(0)
+    m_prev_clocks(SDL_GetTicks())
 {
   Glib::RefPtr<Gdk::GL::Config> glconfig;
   glconfig = Gdk::GL::Config::create(Gdk::GL::MODE_RGB    |
@@ -62,6 +61,14 @@ SkyScene::SkyScene()
     ->add_handler([this](GdkEventKey* event){
       this->m_view_pos_z -= DELTA_POS;
       this->invalidate();
+    });
+  EventRepository::get_event<GdkEventKey*>(EventTypes::WN_KEY_SPACE)
+    ->add_handler([this](GdkEventKey* event){
+      if (m_connection_idle.connected())
+        m_connection_idle.disconnect();
+      else
+        m_connection_idle = Glib::signal_idle().connect(
+          sigc::mem_fun(*this, &SkyScene::on_idle), GDK_PRIORITY_REDRAW);
     });
   
   EventRepository::get_event<float>(EventTypes::LP_STAR_COUNT)
